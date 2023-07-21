@@ -1,0 +1,11 @@
+{
+  "rust-analyzer.linkedProjects": [
+    "./ni/Cargo.toml",
+    "./ni/Cargo.toml",
+    "./ni/Cargo.toml",
+    "./ni/Cargo.toml",
+    "./ni/Cargo.toml",
+    "./ni/Cargo.toml"
+  ],
+  "cSpell.words": ["popen"]
+}
