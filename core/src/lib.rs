@@ -1,35 +1,34 @@
 use serde_json::Value;
 use std::fs;
+use std::io::{BufRead, BufReader};
 use std::path::Path;
 use subprocess::Exec;
 
-pub fn read_package_manager() -> Option<Vec<String>> {
+pub fn read_package_manager() -> Result<Vec<String>, &'static str> {
     let path = Path::new("./package.json");
-
     if path.exists() {
-        let contents = fs::read_to_string(path).expect("Something went wrong reading the file");
-        let parsed: Value = serde_json::from_str(&contents).unwrap();
-        match parsed["packageManager"].as_str() {
-            Some(manager) => {
-                return Some(manager.split('@').map(|s| s.to_string()).collect());
+        if let Ok(contents) = fs::read_to_string(path) {
+            let parsed: Value = serde_json::from_str(&contents).unwrap();
+            if let Some(manager) = parsed["packageManager"].as_str() {
+                let vec: Vec<String> = manager.split('@').map(|s| s.to_string()).collect();
+                return Ok(vec);
             }
-            None => println!("No packageManager field found"),
-        };
-    } else {
-        println!("😭 Package.json file does not exist");
+        } else {
+            return Err(" Failure to read package.json ");
+        }
     }
-
-    None
+    Err("Could not found package.json")
 }
 
-pub fn run_install_command(
-    package_manager: &String,
-    cmd_arg: Option<&str>,
-) -> Result<subprocess::Popen, String> {
+pub fn run_install_command(package_manager: &String, cmd_arg: Vec<&str>) {
     let mut cmd = Exec::cmd(package_manager).stdout(subprocess::Redirection::Pipe);
-    if let Some(arg) = cmd_arg {
+    for arg in cmd_arg {
         cmd = cmd.arg(arg);
     }
-    cmd.popen()
-        .map_err(|e| format!("Failed to start subprocess: {}", e))
+    let mut popen = cmd.popen().unwrap();
+    let stdout = popen.stdout.take().unwrap();
+    let reader = BufReader::new(stdout);
+    for line in reader.lines() {
+        println!("{}", line.unwrap());
+    }
 }
