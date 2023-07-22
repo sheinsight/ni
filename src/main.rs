@@ -66,7 +66,7 @@ fn main() {
                 }
             },
             Some(("x", x_matches)) => {
-                if let Some(package) = x_matches.get_many::<String>("package") {
+                if let Some(_package) = x_matches.get_many::<String>("package") {
                     // println!("{}", package.map(|s| s.as_str()));
                     match p.as_str() {
                         "npm" => {
