@@ -12,6 +12,14 @@ it is difficult to collaborate well with node version management tools like [fnm
 
 Therefore, we need an executable file that does not depend on any environment.
 
+# Installation
+
+## Using a script (macOS/Linux)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/sheinsight/ni/main/install.sh | bash
+```
+
 # Use case
 
 ## install
