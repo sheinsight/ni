@@ -1,48 +1,64 @@
 #!/bin/bash
 
-# 变量设置
+set -e
+
+OS="$(uname -s)"
+
 BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.1/n"
 BINARY_FILE="n"
-INSTALL_DIR="$HOME/.local/bin"
-SHELL_PROFILE="$HOME/.bashrc" # 默认为 Bash
 
-# 根据不同的 Shell 选择配置文件
-if [ $SHELL == "/bin/zsh" ]; then
-    SHELL_PROFILE="$HOME/.zshrc"
-elif [ $SHELL == "/bin/bash" ]; then
-    SHELL_PROFILE="$HOME/.bashrc"
-elif [ -n "$BASH_VERSION" ]; then
-    SHELL_PROFILE="$HOME/.bashrc"
-elif [ -n "$ZSH_VERSION" ]; then
-    SHELL_PROFILE="$HOME/.zshrc"
+if [ -d "$HOME/.local" ]; then
+  INSTALL_DIR="$HOME/.local/bin"
+elif [ -n "$XDG_DATA_HOME" ]; then
+  INSTALL_DIR="$XDG_DATA_HOME"
+elif [ "$OS" = "Darwin" ]; then
+  INSTALL_DIR="/usr/local/bin"
+else
+  INSTALL_DIR="$HOME/.local/bin"
 fi
 
-# 如果目录不存在则创造
+# 如果目录不存在则创建
 mkdir -p $INSTALL_DIR
 
 # 下载二进制文件
-curl -o $BINARY_FILE $BINARY_URL
+curl -L $BINARY_URL -o "$INSTALL_DIR/$BINARY_FILE"
 
 # 将文件设置为可执行
-chmod +x ./$BINARY_FILE
-
-# 移动文件到安装目录
-mv ./$BINARY_FILE $INSTALL_DIR
+chmod +x "$INSTALL_DIR/$BINARY_FILE"
 
 echo "Installation completed"
 
 # 检查是否安装成功
 if command -v $INSTALL_DIR/$BINARY_FILE >/dev/null 2>&1; then
-    echo "Successfully installed $BINARY_FILE"
+  echo "Successfully installed $BINARY_FILE"
 else
-    echo "Installation of $BINARY_FILE failed"
-    exit 1
+  echo "Installation of $BINARY_FILE failed" >&2
+  exit 1
+fi
+
+# 找出所使用的 shell
+CURRENT_SHELL=$(basename "$SHELL")
+
+# 根据 shell 设置 profile 文件的文件名
+if [[ "$CURRENT_SHELL" == "bash" ]]; then
+  # bash 的 profile 文件名
+  SHELL_PROFILE="$HOME/.bashrc"
+elif [[ "$CURRENT_SHELL" == "zsh" ]]; then
+  # zsh 的 profile 文件名
+  SHELL_PROFILE="${ZDOTDIR:-$HOME}/.zshrc"
+else
+  # 其他 shell 此处无法处理，需要用户自行设定
+  echo "Unrecognized shell $CURRENT_SHELL, you might need to add the directory to your PATH manually." >&2
+  exit 1
 fi
 
 # 添加到环境变量
-echo 'export PATH=$PATH:'$INSTALL_DIR >> $SHELL_PROFILE
+{
+  echo ""
+  echo '# Add ni to PATH'
+  echo "export PATH=$INSTALL_DIR:\$PATH"
+} >> "$SHELL_PROFILE"
 
-# 使改变立即生效
-source $SHELL_PROFILE
-
-echo "The $BINARY_FILE path has been added to the system PATH through $SHELL_PROFILE"
+echo "Successfully modified $SHELL_PROFILE"
+echo "Please start a new terminal session for the changes to take effect, or source the profile file directly using:"
+echo "source $SHELL_PROFILE"
