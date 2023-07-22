@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # 变量设置
-BINARY_URL="https://example.com/path/to/binary"
-BINARY_FILE="binary_file_name"
+BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.1/n"
+BINARY_FILE="n"
 INSTALL_DIR="$HOME/.local/bin"
 SHELL_PROFILE="$HOME/.bashrc" # 默认为 Bash
 
