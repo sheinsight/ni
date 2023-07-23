@@ -4,7 +4,7 @@ set -e
 
 OS="$(uname -s)"
 
-BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.2/n"
+BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.3/n"
 BINARY_FILE="n"
 
 if [ -d "$HOME/.local" ]; then
