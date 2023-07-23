@@ -41,7 +41,7 @@ n i react
 ```
 
 ```bash
-# Ready ❌
+# Ready ✅
 n i react -D
 # npm i react -D
 # yarn add react -D
@@ -50,7 +50,7 @@ n i react -D
 
 ```bash
 # Ready ✅
-n i --frozen
+n ci
 # npm ci
 # yarn install --frozen-lockfile (Yarn 1)
 # pnpm install --frozen-lockfile

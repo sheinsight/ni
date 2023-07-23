@@ -1,4 +1,4 @@
-use clap::{value_parser, Arg, ArgAction, Command};
+use clap::{Arg, ArgAction, Command};
 use serde_json::Value;
 use std::fs;
 use std::io::{BufRead, BufReader};
@@ -18,18 +18,13 @@ fn main() {
         println!("👏 Package manage tool is {} , the version is {}", p, v);
         let matches = Command::new("n")
             .subcommand(
-                Command::new("i")
-                    .about("Install operations")
-                    .arg(
-                        Arg::new("frozen")
-                            .long("frozen")
-                            .exclusive(true)
-                            .default_missing_value("true")
-                            .num_args(0..=1)
-                            .value_parser(value_parser!(bool)),
-                    )
-                    .arg(Arg::new("package").required(false)),
+                Command::new("i").about("Install operations").arg(
+                    Arg::new("package")
+                        .required(false)
+                        .action(ArgAction::Append),
+                ),
             )
+            .subcommand(Command::new("ci"))
             .subcommand(
                 Command::new("r")
                     .about("Running script")
@@ -45,18 +40,24 @@ fn main() {
         // Then you can check which subcommand was used
         match matches.subcommand() {
             Some(("i", i_matches)) => {
-                if let Some(frozen) = i_matches.get_one::<bool>("frozen") {
-                    if *frozen {
-                        run_install_command(p, vec!["install", "--frozen-lockfile"])
-                    } else {
-                        run_install_command(p, vec!["install"])
-                    }
-                } else if let Some(package) = i_matches.get_one::<String>("package") {
+                if let Some(package) = i_matches.get_one::<String>("package") {
                     run_install_command(p, vec!["install", package])
                 } else {
                     run_install_command(p, vec!["install"])
                 }
             }
+            Some(("ci", _ci_matches)) => match p.as_str() {
+                "npm" => {
+                    run_install_command(p, vec!["ci"]);
+                }
+                "pnpm" => {
+                    run_install_command(p, vec!["install", "--frozen-lockfile"]);
+                }
+                "yarn" => {
+                    run_install_command(p, vec!["install", "--frozen-lockfile"]);
+                }
+                _ => {}
+            },
             Some(("r", r_matches)) => match r_matches.get_one::<String>("script") {
                 Some(script) => {
                     run_install_command(p, vec![script]);
