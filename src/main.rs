@@ -1,90 +1,75 @@
-use clap::{Arg, ArgAction, Command};
+use clap::{arg, command, ArgAction};
+
+use regex::Regex;
 use serde_json::Value;
 use std::fs;
-use std::io::{BufRead, BufReader};
 use std::path::Path;
 use subprocess::Exec;
-//  ni
-//  nr
-//  nlx
-//  nu
-//  nun
-//  nci
 
 fn main() {
+    let m: clap::ArgMatches = command!("n")
+        .subcommands([
+            command!("add")
+                .about("Add new packages to dependencies")
+                .args([
+                    arg!(<package> "Package name"),
+                    arg!(-'S' --"save" "Save installed packages to a package.json file as dependencies.")
+                        .required(false),
+                    arg!(-'D' --"save-dev" "Package will appear in your devDependencies.")
+                        .required(false),
+                    arg!(-'O' --"save-optional" "Install the specified packages as optionalDependencies.")
+                        .required(false)
+                        .action(ArgAction::SetTrue),
+                    arg!(-'g' --"global" "Install a package globally.")
+                        .required(false)
+                        .action(ArgAction::SetTrue)
+                ]),
+            command!("install")
+                .about("Used to install all dependencies for a project.")
+                .alias("i"),
+            command!("clean-install")
+                    .about("Like npm ci")
+                .alias("ci"),
+        ])
+        .get_matches();
+
     let pkg_manager = read_package_manager().unwrap();
 
     if let [p, v] = &pkg_manager[..2] {
-        println!("👏 Package manage tool is {} , the version is {}", p, v);
-        let matches = Command::new("n")
-            .subcommand(
-                Command::new("i").about("Install operations").arg(
-                    Arg::new("package")
-                        .required(false)
-                        .action(ArgAction::Append),
-                ),
-            )
-            .subcommand(Command::new("ci"))
-            .subcommand(
-                Command::new("r")
-                    .about("Running script")
-                    .arg(Arg::new("script").required(true)),
-            )
-            .subcommand(
-                Command::new("x")
-                    .about("Operation X")
-                    .arg(Arg::new("package").required(true).action(ArgAction::Append)),
-            )
-            .get_matches();
-
-        // Then you can check which subcommand was used
-        match matches.subcommand() {
-            Some(("i", i_matches)) => {
-                if let Some(package) = i_matches.get_one::<String>("package") {
-                    run_install_command(p, vec!["install", package])
-                } else {
-                    run_install_command(p, vec!["install"])
-                }
-            }
-            Some(("ci", _ci_matches)) => match p.as_str() {
-                "npm" => {
-                    run_install_command(p, vec!["ci"]);
-                }
-                "pnpm" => {
-                    run_install_command(p, vec!["install", "--frozen-lockfile"]);
-                }
-                "yarn" => {
-                    run_install_command(p, vec!["install", "--frozen-lockfile"]);
-                }
-                _ => {}
-            },
-            Some(("r", r_matches)) => match r_matches.get_one::<String>("script") {
-                Some(script) => {
-                    run_install_command(p, vec![script]);
-                }
-                None => {
-                    panic!("😢")
-                }
-            },
-            Some(("x", x_matches)) => {
-                if let Some(_package) = x_matches.get_many::<String>("package") {
-                    // println!("{}", package.map(|s| s.as_str()));
+        println!(
+            "🥳 The current package manager being used is : '{}@{}' ",
+            p, v
+        );
+        match m.subcommand() {
+            Some(("add", add_matches)) => {
+                let package = add_matches.get_one::<String>("package").unwrap();
+                let save = add_matches.get_flag("save");
+                let save_dev = add_matches.get_flag("save-dev");
+                let save_optional = add_matches.get_flag("save-optional");
+                let global = add_matches.get_flag("global");
+                if save {
+                    run_shell(format!("{} add --save {}", p, package))
+                } else if save_dev {
+                    run_shell(format!("{} add --save-dev {}", p, package));
+                } else if save_optional {
+                    run_shell(format!("{} add --save-optional {}", p, package))
+                } else if global {
                     match p.as_str() {
-                        "npm" => {
-                            // run_install_command(&"npx".to_string(), vec![package]);
-                        }
-                        "pnpm" => {
-                            // run_install_command(&"pnpx".to_string(), vec![package]);
-                        }
-                        "yarn" => {
-                            // run_install_command(&"yarn".to_string(), vec![package]);
-                        }
-                        _ => {}
+                        "yarn" => run_shell(format!("yarn global add {}", package)),
+                        _ => run_shell(format!("{} add --global {}", p, package)),
                     }
+                } else {
+                    run_shell(format!("{} add {}", p, package));
                 }
             }
-            None => (),
-            _ => unreachable!(),
+            Some(("install", _install_matches)) => run_shell(format!("{} install", p)),
+            Some(("clean-install", _clean_install_matches)) => match p.as_str() {
+                "npm" => run_shell(format!("npm ci")),
+                _ => run_shell(format!("{} install --frozen-lockfile", p)),
+            },
+            _ => {
+                println!("🙁 Sorry, the command you entered is currently not supported.")
+            }
         }
     }
 }
@@ -92,36 +77,30 @@ fn main() {
 pub fn read_package_manager() -> Result<Vec<String>, &'static str> {
     let path = Path::new("./package.json");
     if path.exists() {
-        if let Ok(contents) = fs::read_to_string(path) {
-            let parsed: Value = serde_json::from_str(&contents).unwrap();
-            match parsed["packageManager"].as_str() {
-                Some(manager) => {
-                    let vec: Vec<String> = manager.split('@').map(|s| s.to_string()).collect();
-
-                    return Ok(vec);
-                }
-                None => {
+        let contents = fs::read_to_string(path).unwrap();
+        let parsed: Value = serde_json::from_str(&contents).unwrap();
+        match parsed["packageManager"].as_str() {
+            Some(manager) => {
+                let re = Regex::new(r"(npm|pnpm|yarn)@(.*)").unwrap();
+                if let Some(caps) = re.captures(manager) {
+                    return Ok(vec![caps[1].to_string(), caps[2].to_string()]);
+                } else {
                     return Err(
-                        "😢 Sorry, you must to be configure packageManager in package.json file ",
-                    )
+                        "😢 PackageManager parsing failed, possibly due to incorrect format. ",
+                    );
                 }
             }
-        } else {
-            return Err("😢 Failure to read package.json ");
+            None => {
+                return Err(
+                    "😢 Sorry, you must to be configure packageManager in package.json file ",
+                )
+            }
         }
     }
-    Err("🔎 Could not found package.json")
+    return Err("🔎 Could not found package.json");
 }
 
-pub fn run_install_command(package_manager: &String, cmd_arg: Vec<&str>) {
-    let mut cmd = Exec::cmd(package_manager).stdout(subprocess::Redirection::Pipe);
-    for arg in cmd_arg {
-        cmd = cmd.arg(arg);
-    }
-    let mut popen = cmd.popen().unwrap();
-    let stdout = popen.stdout.take().unwrap();
-    let reader = BufReader::new(stdout);
-    for line in reader.lines() {
-        println!("{}", line.unwrap());
-    }
+fn run_shell(cmd: String) {
+    println!("🎯 The instruction to be executed is : '{}' ", cmd);
+    Exec::cmd("sh").arg("-c").arg(cmd).popen().unwrap();
 }
