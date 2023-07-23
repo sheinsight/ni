@@ -33,7 +33,7 @@ fn main() {
         ])
         .get_matches();
 
-    let pkg_manager = read_package_manager().unwrap();
+    let pkg_manager = read_package_manager();
 
     if let [p, v] = &pkg_manager[..2] {
         println!(
@@ -74,7 +74,7 @@ fn main() {
     }
 }
 
-pub fn read_package_manager() -> Result<Vec<String>, &'static str> {
+pub fn read_package_manager() -> Vec<String> {
     let path = Path::new("./package.json");
     if path.exists() {
         let contents = fs::read_to_string(path).unwrap();
@@ -83,21 +83,17 @@ pub fn read_package_manager() -> Result<Vec<String>, &'static str> {
             Some(manager) => {
                 let re = Regex::new(r"(npm|pnpm|yarn)@(.*)").unwrap();
                 if let Some(caps) = re.captures(manager) {
-                    return Ok(vec![caps[1].to_string(), caps[2].to_string()]);
+                    return vec![caps[1].to_string(), caps[2].to_string()];
                 } else {
-                    return Err(
-                        "😢 PackageManager parsing failed, possibly due to incorrect format. ",
-                    );
+                    panic!("😢 PackageManager parsing failed, possibly due to incorrect format. ");
                 }
             }
             None => {
-                return Err(
-                    "😢 Sorry, you must to be configure packageManager in package.json file ",
-                )
+                panic!("😢 Sorry, you must to be configure packageManager in package.json file ");
             }
         }
     }
-    return Err("🔎 Could not found package.json");
+    panic!("🔎 Could not found package.json");
 }
 
 fn run_shell(cmd: String) {
