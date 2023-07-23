@@ -34,35 +34,53 @@ n i
 
 ```bash
 # Ready ✅
-n i react
-# npm i react
-# yarn add react
-# pnpm add react
-```
-
-```bash
-# Ready ✅
-n i react -D
-# npm i react -D
-# yarn add react -D
-# pnpm add react -D
-```
-
-```bash
-# Ready ✅
 n ci
 # npm ci
 # yarn install --frozen-lockfile (Yarn 1)
 # pnpm install --frozen-lockfile
 ```
 
-```bash
-# Ready ❌
-n i -g eslint
+## add
 
-# npm i -g eslint
+```bash
+# Ready ✅
+n add react
+# npm add react
+# yarn add react
+# pnpm add react
+```
+
+```bash
+# Ready ✅
+n add react -D
+# npm add --save-dev react
+# yarn add --save-dev react
+# pnpm add --save-dev react
+```
+
+```bash
+# Ready ✅
+n add react -S
+# npm add --save react
+# yarn add --save react
+# pnpm add --save react
+```
+
+```bash
+# Ready ✅
+n add react -O
+# npm add --save-optional react
+# yarn add --save-optional react
+# pnpm add --save-optional react
+```
+
+```bash
+# Ready ✅
+n add -g eslint
+
+# npm add --global eslint
 # yarn global add eslint (Yarn 1)
-# pnpm add -g eslint
+# pnpm add --global eslint
 
 ```
 
