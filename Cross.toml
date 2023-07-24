@@ -1,0 +1,4 @@
+# [target.x86_64-unknown-linux-musl.dockerfile]
+# file = "./docker/Dockerfile.x86_64-unknown-linux-musl" # The dockerfile to use relative to the `Cargo.toml`
+# context = "./docker" # What folder to run the build script in
+# build-args = { ARG1 = "foo" } # https://docs.docker.com/engine/reference/builder/#arg
