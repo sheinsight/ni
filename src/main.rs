@@ -1,7 +1,8 @@
-use clap::{arg, command, ArgAction, ArgGroup, Args, Parser, Subcommand};
+use clap::{arg, command, Parser, Subcommand};
 
 use regex::Regex;
 use serde_json::Value;
+use std::env;
 use std::fs;
 use std::path::Path;
 use subprocess::Exec;
@@ -56,6 +57,8 @@ enum Commands {
 }
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    dbg!(args);
     let pkg_manager = read_package_manager();
     if let [p, v] = &pkg_manager[..2] {
         println!(
@@ -94,7 +97,9 @@ fn main() {
             Commands::Run { script } => {
                 run_shell(format!("{} run {}", p, script));
             }
-            _ => {}
+            _ => {
+                panic!("error")
+            }
         }
     }
 }
