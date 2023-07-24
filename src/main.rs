@@ -48,7 +48,7 @@ enum Commands {
     Install {},
 
     /// This runs an arbitrary command from a package's 'scripts' object.
-    #[command(name = "run")]
+    #[command(name = "run", arg_required_else_help = true)]
     Run {
         #[arg(value_name = "script", help = "package's 'scripts' object.")]
         script: String,
