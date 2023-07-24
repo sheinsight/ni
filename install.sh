@@ -3,9 +3,33 @@
 set -e
 
 OS="$(uname -s)"
+ARCH="$(uname -m)"
 
-BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.3/n"
+echo $OS
+echo $ARCH
+
+BINARY_URL=""
 BINARY_FILE="n"
+
+
+if [ "$OS" = "Darwin" ]; then
+  if [ "$ARCH" = "x86_64" ]; then
+    BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.3/x86_64-apple-darwin.tar.gz"
+    INSTALL_DIR="/usr/local/bin"
+  elif [ "$ARCH" = "arm64" ]; then
+    BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.3/aarch64-apple-darwin.tar.gz"
+    INSTALL_DIR="$HOME/.local/bin"
+  fi
+elif [ "$OS" = "Linux" ]; then
+  BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.3/x86_64-unknown-linux-musl.tar.gz"
+  INSTALL_DIR="$HOME/.local/bin"
+elif [ "$OS" = "MINGW*" ]; then
+  BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.3/x86_64-pc-windows-gnu.tar.gz"
+  INSTALL_DIR="$HOME/.local/bin"
+else
+  echo "Your OS is not supported." >&2
+  exit 1
+fi
 
 if [ -d "$HOME/.local" ]; then
   INSTALL_DIR="$HOME/.local/bin"
@@ -17,11 +41,23 @@ else
   INSTALL_DIR="$HOME/.local/bin"
 fi
 
+
 # 如果目录不存在则创建
 mkdir -p $INSTALL_DIR
 
+# 将原文件下载到临时文件
+temp=$(mktemp)
+echo $BINARY_URL
+
+curl -L $BINARY_URL -o $temp
+
+# 解压到目标目录
+tar -zxvf $temp -C $INSTALL_DIR
+
+
+
 # 下载二进制文件
-curl -L $BINARY_URL -o "$INSTALL_DIR/$BINARY_FILE"
+# curl -L $BINARY_URL -o "$INSTALL_DIR/$BINARY_FILE"
 
 # 将文件设置为可执行
 chmod +x "$INSTALL_DIR/$BINARY_FILE"
