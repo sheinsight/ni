@@ -1,4 +1,4 @@
-use clap::{arg, command, ArgAction};
+use clap::{arg, command, ArgAction, ArgGroup, Args, Parser, Subcommand};
 
 use regex::Regex;
 use serde_json::Value;
@@ -6,55 +6,73 @@ use std::fs;
 use std::path::Path;
 use subprocess::Exec;
 
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+struct Cli {
+    #[command(subcommand)]
+    commands: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Add new packages to dependencies
+    #[command(arg_required_else_help = true)]
+    Add {
+        /// Save installed packages to a package.json file as dependencies.
+        #[arg(value_name = "package")]
+        package: String,
+
+        /// Save installed packages to a package.json file as dependencies.
+        #[arg(group = "position", short = 'S', long = "save")]
+        save: bool,
+
+        /// Package will appear in your devDependencies.
+        #[arg(group = "position", short = 'D', long = "save-dev")]
+        save_dev: bool,
+
+        /// Install the specified packages as optionalDependencies.
+        #[arg(group = "position", short = 'O', long = "save-optional")]
+        save_optional: bool,
+
+        /// Install a package globally.
+        #[arg(group = "position", short = 'g', long = "global")]
+        global: bool,
+    },
+
+    /// Like npm ci
+    #[command(name = "clean-install", alias = "ci")]
+    CleanInstall {},
+
+    /// Used to install all dependencies for a project.
+    #[command(name = "install", alias = "i")]
+    Install {},
+
+    /// This runs an arbitrary command from a package's 'scripts' object.
+    #[command(name = "run")]
+    Run {
+        #[arg(value_name = "script", help = "package's 'scripts' object.")]
+        script: String,
+    },
+}
+
 fn main() {
-    let m: clap::ArgMatches = command!("n")
-        .subcommands([
-            command!("add")
-                .about("Add new packages to dependencies")
-                .args([
-                    arg!(<package> "Package name"),
-                    arg!(-'S' --"save" "Save installed packages to a package.json file as dependencies.")
-                        .required(false),
-                    arg!(-'D' --"save-dev" "Package will appear in your devDependencies.")
-                        .required(false),
-                    arg!(-'O' --"save-optional" "Install the specified packages as optionalDependencies.")
-                        .required(false)
-                        .action(ArgAction::SetTrue),
-                    arg!(-'g' --"global" "Install a package globally.")
-                        .required(false)
-                        .action(ArgAction::SetTrue)
-                ]),
-            command!("install")
-                .alias("i")
-                .about("Used to install all dependencies for a project."),
-            command!("clean-install")
-                .alias("ci")
-                .about("Like npm ci"),
-            command!("run")
-                .alias("r")
-                .about("This runs an arbitrary command from a package's 'scripts' object.")
-                .args([
-                    arg!(<script> "package's 'scripts' object")
-                ])
-        ])
-        .get_matches();
-
     let pkg_manager = read_package_manager();
-
     if let [p, v] = &pkg_manager[..2] {
         println!(
             "🥳 The current package manager being used is : '{}@{}' ",
             p, v
         );
-        match m.subcommand() {
-            Some(("add", add_matches)) => {
-                let package = add_matches.get_one::<String>("package").unwrap();
-                let save = add_matches.get_flag("save");
-                let save_dev = add_matches.get_flag("save-dev");
-                let save_optional = add_matches.get_flag("save-optional");
-                let global = add_matches.get_flag("global");
+        let cli = Cli::parse();
+        match cli.commands {
+            Commands::Add {
+                package,
+                save,
+                save_dev,
+                save_optional,
+                global,
+            } => {
                 if save {
-                    run_shell(format!("{} add --save {}", p, package))
+                    run_shell(format!("{} add --save {}", p, package));
                 } else if save_dev {
                     run_shell(format!("{} add --save-dev {}", p, package));
                 } else if save_optional {
@@ -68,18 +86,15 @@ fn main() {
                     run_shell(format!("{} add {}", p, package));
                 }
             }
-            Some(("install", _install_matches)) => run_shell(format!("{} install", p)),
-            Some(("clean-install", _clean_install_matches)) => match p.as_str() {
+            Commands::CleanInstall {} => match p.as_str() {
                 "npm" => run_shell(format!("npm ci")),
                 _ => run_shell(format!("{} install --frozen-lockfile", p)),
             },
-            Some(("run", run_matches)) => {
-                let script = run_matches.get_one::<String>("script").unwrap();
+            Commands::Install {} => run_shell(format!("{} install", p)),
+            Commands::Run { script } => {
                 run_shell(format!("{} run {}", p, script));
             }
-            _ => {
-                println!("🙁 Sorry, the command you entered is currently not supported.")
-            }
+            _ => {}
         }
     }
 }
