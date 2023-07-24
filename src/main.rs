@@ -25,11 +25,17 @@ fn main() {
                         .action(ArgAction::SetTrue)
                 ]),
             command!("install")
-                .about("Used to install all dependencies for a project.")
-                .alias("i"),
+                .alias("i")
+                .about("Used to install all dependencies for a project."),
             command!("clean-install")
-                    .about("Like npm ci")
-                .alias("ci"),
+                .alias("ci")
+                .about("Like npm ci"),
+            command!("run")
+                .alias("r")
+                .about("This runs an arbitrary command from a package's 'scripts' object.")
+                .args([
+                    arg!(<script> "package's 'scripts' object")
+                ])
         ])
         .get_matches();
 
@@ -67,6 +73,10 @@ fn main() {
                 "npm" => run_shell(format!("npm ci")),
                 _ => run_shell(format!("{} install --frozen-lockfile", p)),
             },
+            Some(("run", run_matches)) => {
+                let script = run_matches.get_one::<String>("script").unwrap();
+                run_shell(format!("{} run {}", p, script));
+            }
             _ => {
                 println!("🙁 Sorry, the command you entered is currently not supported.")
             }

@@ -87,6 +87,14 @@ n add -g eslint
 ## run
 
 ```bash
+# Ready ✅
+n r dev
+# npm run dev
+# yarn run dev
+# pnpm run dev
+```
+
+```bash
 # Ready ❌
 n r dev --port=3000
 # npm run dev -- --port=3000
