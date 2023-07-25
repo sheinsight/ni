@@ -1,5 +1,6 @@
 [package]
 name = "n"
+author = "ityuany"
 version = "0.0.3"
 edition = "2021"
 

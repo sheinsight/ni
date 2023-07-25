@@ -132,7 +132,7 @@ n u
 ## uninstall
 
 ```bash
-# Ready ❌
+# Ready ✅
 n un
 # npm uninstall webpack
 # yarn remove webpack
@@ -140,7 +140,7 @@ n un
 ```
 
 ```bash
-# Ready ❌
+# Ready ✅
 n un -g silent
 
 # npm uninstall -g silent

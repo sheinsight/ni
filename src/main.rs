@@ -7,7 +7,7 @@ use std::path::Path;
 use subprocess::Exec;
 
 #[derive(Parser)]
-#[command(author, version, about, long_about = None)]
+#[command(name= "n",author, version, about, long_about = None,disable_help_subcommand=true )]
 struct Cli {
     #[command(subcommand)]
     commands: Commands,
@@ -40,14 +40,26 @@ enum Commands {
     },
 
     /// Like npm ci
-    #[command(name = "clean-install", alias = "ci")]
+    #[command(name = "clean-install", visible_aliases = ["ci"])]
     CleanInstall {},
 
-    /// Used to install all dependencies for a project.
-    #[command(name = "install", alias = "i")]
+    /// Like npm install
+    #[command(name = "install",visible_aliases = ["i"])]
     Install {},
 
-    /// This runs an arbitrary command from a package's 'scripts' object.
+    /// Like npm uninstall
+    #[command(name = "uninstall",visible_aliases = ["un"])]
+    UnInstall {
+        /// Target package
+        #[arg(value_name = "package")]
+        package: String,
+
+        /// Install a package globally.
+        #[arg(group = "position", short = 'g', long = "global")]
+        global: bool,
+    },
+
+    /// Like npm run
     #[command(name = "run", arg_required_else_help = true)]
     Run {
         #[arg(value_name = "script", help = "package's 'scripts' object.")]
@@ -57,13 +69,17 @@ enum Commands {
         pass_on: Vec<String>,
     },
 
-    /// This command will update all the packages listed to the latest version (specified by the tag config), respecting the semver constraints of both your package and its dependencies (if they also require the same package).
-    #[command(name = "upgrade", alias = "up", arg_required_else_help = true)]
-    Upgrade {},
-    /// Fetches a package from the registry without installing it as a dependency, hotloads it, and runs whatever default command binary it exposes.
-    #[command(name = "dlx", arg_required_else_help = true)]
+    /// Like npm update
+    #[command(name = "upgrade", visible_aliases = ["up"], arg_required_else_help = true)]
+    Upgrade {
+        /// Target package
+        #[arg(value_name = "package")]
+        package: String,
+    },
+    /// Like npx
+    #[command(name = "dlx", visible_aliases = ["x"],arg_required_else_help = true)]
     Dlx {
-        /// Hotloads package
+        /// Target package
         #[arg(value_name = "package")]
         package: String,
     },
@@ -105,6 +121,21 @@ fn main() {
                 _ => run_shell(format!("{} install --frozen-lockfile", p)),
             },
             Commands::Install {} => run_shell(format!("{} install", p)),
+            Commands::UnInstall { package, global } => {
+                if global {
+                    match p.as_str() {
+                        "npm" => run_shell(format!("npm uninstall -g {}", package)),
+                        "yarn" => run_shell(format!("yarn global remove {}", package)),
+                        "pnpm" => run_shell(format!("pnpm remove -g {}", package)),
+                        _ => {}
+                    }
+                } else {
+                    match p.as_str() {
+                        "npm" => run_shell(format!("npm uninstall {}", package)),
+                        _ => run_shell(format!("{} remove {}", p, package)),
+                    }
+                }
+            }
             Commands::Run { script, pass_on } => {
                 match p.as_str() {
                     "npm" => run_shell(format!("npm run dev -- {}", pass_on.join(" "))),
@@ -112,13 +143,13 @@ fn main() {
                 }
                 run_shell(format!("{} run {}", p, script));
             }
-            Commands::Upgrade {} => run_shell(format!("{} run upgrade", p)),
+            Commands::Upgrade { package } => run_shell(format!("{} upgrade {}", p, package)),
             Commands::Dlx { package } => match p.as_str() {
                 "npm" => run_shell(format!("npx {}", package)),
                 _ => run_shell(format!("{} dlx {}", p, package)),
             },
             _ => {
-                panic!("error")
+                panic!("error");
             }
         }
     }
