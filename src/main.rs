@@ -148,9 +148,6 @@ fn main() {
                 "npm" => run_shell(format!("npx {}", package)),
                 _ => run_shell(format!("{} dlx {}", p, package)),
             },
-            _ => {
-                panic!("error");
-            }
         }
     }
 }
