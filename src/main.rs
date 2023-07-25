@@ -57,8 +57,16 @@ enum Commands {
         pass_on: Vec<String>,
     },
 
-    #[command(name = "upgrade", arg_required_else_help = true)]
+    /// This command will update all the packages listed to the latest version (specified by the tag config), respecting the semver constraints of both your package and its dependencies (if they also require the same package).
+    #[command(name = "upgrade", alias = "up", arg_required_else_help = true)]
     Upgrade {},
+    /// Fetches a package from the registry without installing it as a dependency, hotloads it, and runs whatever default command binary it exposes.
+    #[command(name = "dlx", arg_required_else_help = true)]
+    Dlx {
+        /// Hotloads package
+        #[arg(value_name = "package")]
+        package: String,
+    },
 }
 
 fn main() {
@@ -105,6 +113,10 @@ fn main() {
                 run_shell(format!("{} run {}", p, script));
             }
             Commands::Upgrade {} => run_shell(format!("{} run upgrade", p)),
+            Commands::Dlx { package } => match p.as_str() {
+                "npm" => run_shell(format!("npx {}", package)),
+                _ => run_shell(format!("{} dlx {}", p, package)),
+            },
             _ => {
                 panic!("error")
             }
