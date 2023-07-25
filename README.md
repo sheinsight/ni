@@ -95,7 +95,7 @@ n r dev
 ```
 
 ```bash
-# Ready ❌
+# Ready ✅
 n r dev --port=3000
 # npm run dev -- --port=3000
 # yarn run dev --port=3000

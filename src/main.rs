@@ -2,7 +2,6 @@ use clap::{arg, command, Parser, Subcommand};
 
 use regex::Regex;
 use serde_json::Value;
-use std::env;
 use std::fs;
 use std::path::Path;
 use subprocess::Exec;
@@ -53,12 +52,13 @@ enum Commands {
     Run {
         #[arg(value_name = "script", help = "package's 'scripts' object.")]
         script: String,
+
+        #[arg(value_name = "--")]
+        pass_on: Vec<String>,
     },
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    dbg!(args);
     let pkg_manager = read_package_manager();
     if let [p, v] = &pkg_manager[..2] {
         println!(
@@ -94,7 +94,11 @@ fn main() {
                 _ => run_shell(format!("{} install --frozen-lockfile", p)),
             },
             Commands::Install {} => run_shell(format!("{} install", p)),
-            Commands::Run { script } => {
+            Commands::Run { script, pass_on } => {
+                match p.as_str() {
+                    "npm" => run_shell(format!("npm run dev -- {}", pass_on.join(" "))),
+                    _ => run_shell(format!("{} run dev {}", p, pass_on.join(" "))),
+                }
                 run_shell(format!("{} run {}", p, script));
             }
             _ => {
