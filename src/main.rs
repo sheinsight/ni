@@ -56,6 +56,9 @@ enum Commands {
         #[arg(value_name = "--")]
         pass_on: Vec<String>,
     },
+
+    #[command(name = "upgrade", arg_required_else_help = true)]
+    Upgrade {},
 }
 
 fn main() {
@@ -101,6 +104,7 @@ fn main() {
                 }
                 run_shell(format!("{} run {}", p, script));
             }
+            Commands::Upgrade {} => run_shell(format!("{} run upgrade", p)),
             _ => {
                 panic!("error")
             }

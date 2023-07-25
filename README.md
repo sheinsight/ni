@@ -122,7 +122,7 @@ n x tsx
 ## upgrade
 
 ```bash
-# Ready ❌
+# Ready ✅
 n u
 # npm upgrade
 # yarn upgrade (Yarn 1)
