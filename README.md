@@ -112,8 +112,8 @@ n r
 ## npx
 
 ```bash
-# Ready ❌
-n x tsx
+# Ready ✅
+n dlx tsx
 # npx vitest
 # yarn dlx vitest
 # pnpm dlx vitest
