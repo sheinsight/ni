@@ -14,17 +14,17 @@ BINARY_FILE="n"
 
 if [ "$OS" = "Darwin" ]; then
   if [ "$ARCH" = "x86_64" ]; then
-    BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.3/x86_64-apple-darwin.tar.gz"
+    BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.4/x86_64-apple-darwin.tar.gz"
     INSTALL_DIR="/usr/local/bin"
   elif [ "$ARCH" = "arm64" ]; then
-    BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.3/aarch64-apple-darwin.tar.gz"
+    BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.4/aarch64-apple-darwin.tar.gz"
     INSTALL_DIR="$HOME/.local/bin"
   fi
 elif [ "$OS" = "Linux" ]; then
-  BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.3/x86_64-unknown-linux-musl.tar.gz"
+  BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.4/x86_64-unknown-linux-musl.tar.gz"
   INSTALL_DIR="$HOME/.local/bin"
 elif [ "$OS" = "MINGW*" ]; then
-  BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.3/x86_64-pc-windows-gnu.tar.gz"
+  BINARY_URL="https://github.com/sheinsight/ni/releases/download/v0.0.4/x86_64-pc-windows-gnu.tar.gz"
   INSTALL_DIR="$HOME/.local/bin"
 else
   echo "Your OS is not supported." >&2
