@@ -22,6 +22,8 @@ curl -fsSL https://raw.githubusercontent.com/sheinsight/ni/main/install.sh | bas
 
 # Use case
 
+- [ ] set cache
+
 ## install
 
 ```bash
