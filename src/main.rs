@@ -83,6 +83,11 @@ enum Commands {
         #[arg(value_name = "package")]
         package: String,
     },
+    #[command(name = "set-cache", arg_required_else_help = true)]
+    SetCache {
+        #[arg(name = "path")]
+        path: String,
+    },
 }
 
 fn main() {
@@ -147,6 +152,14 @@ fn main() {
             Commands::Dlx { package } => match p.as_str() {
                 "npm" => run_shell(format!("npx {}", package)),
                 _ => run_shell(format!("{} dlx {}", p, package)),
+            },
+            Commands::SetCache { path } => match p.as_str() {
+                "npm" => run_shell(format!("npm config set cache {}", path)),
+                "yarn" => run_shell(format!("yarn config set cache-folder {}", path)),
+                "pnpm" => run_shell(format!("pnpm config set store-dir {}", path)),
+                _ => {
+                    panic!("packageManager configure error")
+                }
             },
         }
     }

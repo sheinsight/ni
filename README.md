@@ -22,8 +22,6 @@ curl -fsSL https://raw.githubusercontent.com/sheinsight/ni/main/install.sh | bas
 
 # Use case
 
-- [ ] set cache
-
 ## install
 
 ```bash
@@ -148,6 +146,14 @@ n un -g silent
 # npm uninstall -g silent
 # yarn global remove silent
 # pnpm remove -g silent
+```
+
+```bash
+# Ready ✅
+n set-cache /root
+# npm config set cache /root
+# yarn config set cache-folder /root
+# pnpm config set store-dir /root
 ```
 
 # How
