@@ -42,6 +42,7 @@ else
   INSTALL_DIR="$HOME/.local/bin"
 fi
 
+echo "INSTALL_DIR is $INSTALL_DIR"
 
 # 如果目录不存在则创建
 mkdir -p $INSTALL_DIR
