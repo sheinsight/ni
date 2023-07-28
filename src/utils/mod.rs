@@ -1,8 +1,13 @@
+#[macro_use]
+pub mod macros;
+
 use regex::Regex;
 use serde_json::Value;
 use std::fs;
 use std::path::Path;
 use subprocess::Exec;
+extern crate colored;
+use colored::*;
 
 pub fn read_package_manager() -> Vec<String> {
     let path = Path::new("./package.json");
@@ -15,18 +20,29 @@ pub fn read_package_manager() -> Vec<String> {
                 if let Some(caps) = re.captures(manager) {
                     return vec![caps[1].to_string(), caps[2].to_string()];
                 } else {
-                    panic!("😢 PackageManager parsing failed, possibly due to incorrect format. ");
+                    error!("PackageManager parsing failed, possibly due to incorrect format. ");
                 }
             }
             None => {
-                panic!("😢 Sorry, you must to be configure packageManager in package.json file ");
+                error!("Sorry, you must to be configure packageManager in package.json file ");
             }
         }
     }
-    panic!("🔎 Could not found package.json");
+    error!("Could not found package.json");
 }
 
 pub fn run_shell(cmd: String) {
-    println!("🎯 The instruction to be executed is : '{}' ", cmd);
-    Exec::cmd("sh").arg("-c").arg(cmd).popen().unwrap();
+    info!("The instruction to be executed is : '{}' ", cmd);
+    let popen = Exec::cmd("sh")
+        .arg("-c")
+        .arg(cmd)
+        // .stderr(Redirection::None)
+        // .stdout(Redirection::None)
+        .popen();
+    match popen {
+        Ok(_) => (),
+        Err(err) => {
+            error!("Failed to execute the command: '{}'.", err);
+        }
+    }
 }

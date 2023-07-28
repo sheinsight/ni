@@ -5,7 +5,7 @@ use crate::utils::read_package_manager;
 use clap::{command, Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(name= "n",author, version, about, long_about = None,disable_help_subcommand=true )]
+#[command(name= "n",author = "ityuany", version, about, long_about = None,disable_help_subcommand=true )]
 struct Cli {
     #[command(subcommand)]
     commands: Commands,
@@ -44,11 +44,14 @@ enum Commands {
 }
 
 fn main() {
+    info!("Welcome to use 'n'");
+
+    info!("Parsing the packageManager in the package.json file.");
     let pkg_manager = read_package_manager();
     if let [package_manager, package_manager_version] = &pkg_manager[..2] {
-        println!(
-            "🥳 The current package manager being used is : '{}@{}' ",
-            package_manager, package_manager_version
+        info!(
+            "The current package manager being used is: '{}@{}'",
+            package_manager, package_manager_version,
         );
         let cli = Cli::parse();
         match cli.commands {
