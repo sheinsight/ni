@@ -1,16 +1,20 @@
 # n
 
-💡 Use the right package manager by rust
-
 💡 Inspired by [ni](https://github.com/antfu/ni)
+
+Choose the correct command prefix (npm, yarn, pnpm) based on the `packageManager` configuration in your `package.json`.
 
 # Why
 
-[ni](https://github.com/antfu/ni) is nice , but [ni](https://github.com/antfu/ni) is based on Node.
+Why do we need to do this when we already have [ni](https://github.com/antfu/ni) 🤔️ ?
 
-it is difficult to collaborate well with node version management tools like [fnm](https://github.com/Schniz/fnm) and [nvm](https://github.com/nvm-sh/nvm).
+Because [ni](https://github.com/antfu/ni) runs on the Node environment, which means that when we switch between different versions of Node using tools like [fnm](https://github.com/Schniz/fnm) and [nvm](https://github.com/nvm-sh/nvm), we always need to globally install [ni](https://github.com/antfu/ni), which is not elegant.
 
-Therefore, we need an executable file that does not depend on any environment.
+We hope to have a tool similar to [ni](https://github.com/antfu/ni), but it does not depend on the Node environment, so that we can better collaborate with [fnm](https://github.com/Schniz/fnm) and [nvm](https://github.com/nvm-sh/nvm).
+
+# Differences from ni
+
+Our philosophy is somewhat different from [ni](https://github.com/antfu/ni). We are strict and require you to declare `packageManager` in `package.json`.
 
 # Installation
 
@@ -155,9 +159,3 @@ n set-cache /root
 # yarn config set cache-folder /root
 # pnpm config set store-dir /root
 ```
-
-# How
-
-Unlike ni, n requires you to configure packageManager in package.json.
-
-Because we hope everything is clear.
