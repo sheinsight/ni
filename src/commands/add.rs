@@ -1,5 +1,7 @@
 use crate::utils::run_shell;
+use crate::commands::runnable_cmd::RunnableCmd;
 use clap::Args;
+
 #[derive(Args)]
 pub struct AddArgs {
     /// Save installed packages to a package.json file as dependencies.
@@ -23,31 +25,32 @@ pub struct AddArgs {
     pub global: bool,
 }
 
-pub fn handler(
-    package_manager: &String,
-    AddArgs {
-        package,
-        save,
-        save_dev,
-        save_optional,
-        global,
-    }: AddArgs,
-) {
-    if save {
-        run_shell(format!("{} add --save {}", package_manager, package));
-    } else if save_dev {
-        run_shell(format!("{} add --save-dev {}", package_manager, package));
-    } else if save_optional {
-        run_shell(format!(
-            "{} add --save-optional {}",
-            package_manager, package
-        ))
-    } else if global {
-        match package.as_str() {
-            "yarn" => run_shell(format!("yarn global add {}", package)),
-            _ => run_shell(format!("{} add --global {}", package_manager, package)),
+impl RunnableCmd for AddArgs {
+    fn run_with(&self, package_manager: &String) {
+        let AddArgs{
+            package,
+            save,
+            save_dev,
+            save_optional,
+            global,
+        } = self;
+
+        if *save {
+            run_shell(format!("{} add --save {}", package_manager, package));
+        } else if *save_dev {
+            run_shell(format!("{} add --save-dev {}", package_manager, package));
+        } else if *save_optional {
+            run_shell(format!(
+                "{} add --save-optional {}",
+                package_manager, package
+            ))
+        } else if *global {
+            match package.as_str() {
+                "yarn" => run_shell(format!("yarn global add {}", package)),
+                _ => run_shell(format!("{} add --global {}", package_manager, package)),
+            }
+        } else {
+            run_shell(format!("{} add {}", package_manager, package));
         }
-    } else {
-        run_shell(format!("{} add {}", package_manager, package));
     }
 }
