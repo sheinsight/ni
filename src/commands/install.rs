@@ -1,12 +1,12 @@
-use crate::utils::run_shell;
-use crate::commands::runnable_cmd::RunnableCmd;
 use clap::Args;
+
+use super::command_handler::CommandHandler;
 
 #[derive(Args)]
 pub struct InstallArgs {}
 
-impl RunnableCmd for InstallArgs {
-    fn run_with(&self, package_manager: &String) {
-        run_shell(format!("{} install", package_manager))
+impl CommandHandler for InstallArgs {
+    fn get_runnable_cmd(&self, package_manager: &String) -> String {
+        format!("{} install", package_manager)
     }
 }

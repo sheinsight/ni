@@ -1,15 +1,15 @@
-use crate::utils::run_shell;
-use crate::commands::runnable_cmd::RunnableCmd;
 use clap::Args;
+
+use super::command_handler::CommandHandler;
 
 #[derive(Args)]
 pub struct CleanInstallArgs {}
 
-impl RunnableCmd for CleanInstallArgs {
-    fn run_with(&self, package_manager: &String) {
+impl CommandHandler for CleanInstallArgs {
+    fn get_runnable_cmd(&self, package_manager: &String) -> String {
         match package_manager.as_str() {
-            "npm" => run_shell(format!("npm ci")),
-            _ => run_shell(format!("{} install --frozen-lockfile", package_manager)),
+            "npm" => format!("npm ci"),
+            _ => format!("{} install --frozen-lockfile", package_manager),
         }
     }
 }

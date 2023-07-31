@@ -1,6 +1,6 @@
-use crate::utils::run_shell;
-use crate::commands::runnable_cmd::RunnableCmd;
 use clap::Args;
+
+use super::command_handler::CommandHandler;
 
 #[derive(Args)]
 pub struct SetCacheArgs {
@@ -8,14 +8,14 @@ pub struct SetCacheArgs {
     pub path: String,
 }
 
-impl RunnableCmd for SetCacheArgs {
-    fn run_with(&self, package_manager: &String) {
+impl CommandHandler for SetCacheArgs {
+    fn get_runnable_cmd(&self, package_manager: &String) -> String {
         let SetCacheArgs { path } = self;
         match package_manager.as_str() {
-            "npm" => run_shell(format!("npm config set cache {}", path)),
-            "yarn" => run_shell(format!("yarn config set cache-folder {}", path)),
-            "pnpm" => run_shell(format!("pnpm config set store-dir {}", path)),
-            _ => panic!("packageManager configure error"),
+            "npm" => format!("npm config set cache {}", path),
+            "yarn" => format!("yarn config set cache-folder {}", path),
+            "pnpm" => format!("pnpm config set store-dir {}", path),
+            _ => format!("npm config set cache {}", path),
         }
     }
 }

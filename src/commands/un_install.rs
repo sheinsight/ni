@@ -1,6 +1,6 @@
-use crate::utils::run_shell;
-use crate::commands::runnable_cmd::RunnableCmd;
 use clap::Args;
+
+use super::command_handler::CommandHandler;
 
 #[derive(Args)]
 pub struct UnInstallArgs {
@@ -13,20 +13,20 @@ pub struct UnInstallArgs {
     pub global: bool,
 }
 
-impl RunnableCmd for UnInstallArgs {
-    fn run_with(&self, package_manager: &String) {
+impl CommandHandler for UnInstallArgs {
+    fn get_runnable_cmd(&self, package_manager: &String) -> String {
         let UnInstallArgs { package, global } = self;
         if *global {
             match package_manager.as_str() {
-                "npm" => run_shell(format!("npm uninstall -g {}", package)),
-                "yarn" => run_shell(format!("yarn global remove {}", package)),
-                "pnpm" => run_shell(format!("pnpm remove -g {}", package)),
-                _ => {}
+                "npm" => format!("npm uninstall -g {}", package),
+                "yarn" => format!("yarn global remove {}", package),
+                "pnpm" => format!("pnpm remove -g {}", package),
+                _ => format!("npm uninstall -g {}", package),
             }
         } else {
             match package_manager.as_str() {
-                "npm" => run_shell(format!("npm uninstall {}", package)),
-                _ => run_shell(format!("{} remove {}", package_manager, package)),
+                "npm" => format!("npm uninstall {}", package),
+                _ => format!("{} remove {}", package_manager, package),
             }
         }
     }
