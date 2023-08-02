@@ -1,9 +1,12 @@
-use crate::utils::run_shell;
 use clap::Args;
+
+use super::command_handler::CommandHandler;
 
 #[derive(Args)]
 pub struct InstallArgs {}
 
-pub fn handler(package_manager: &String, _install_args: InstallArgs) {
-    run_shell(format!("{} install", package_manager))
+impl CommandHandler for InstallArgs {
+    fn get_runnable_cmd(&self, package_manager: &String) -> String {
+        format!("{} install", package_manager)
+    }
 }

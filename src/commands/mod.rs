@@ -1,5 +1,6 @@
 pub mod add;
 pub mod clean_install;
+pub mod command_handler;
 pub mod dlx;
 pub mod install;
 pub mod run;

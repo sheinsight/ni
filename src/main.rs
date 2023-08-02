@@ -1,7 +1,8 @@
 mod commands;
 mod utils;
+use crate::commands::command_handler::CommandHandler;
 use crate::commands::{add, clean_install, dlx, install, run, set_cache, un_install, upgrade};
-use crate::utils::read_package_manager;
+use crate::utils::{read_package_manager, run_shell};
 use clap::{command, Parser, Subcommand};
 
 #[derive(Parser)]
@@ -54,25 +55,16 @@ fn main() {
             package_manager, package_manager_version,
         );
         let cli = Cli::parse();
-        match cli.commands {
-            Commands::Add(add_args) => add::handler(package_manager, add_args),
-            Commands::CleanInstall(clean_install_args) => {
-                clean_install::handler(package_manager, clean_install_args);
-            }
-            Commands::Install(install_args) => install::handler(package_manager, install_args),
-            Commands::UnInstall(un_install_args) => {
-                un_install::handler(package_manager, un_install_args);
-            }
-            Commands::Run(run_args) => run::handler(package_manager, run_args),
-            Commands::Upgrade(upgrade_args) => {
-                upgrade::handler(package_manager, upgrade_args);
-            }
-            Commands::Dlx(dlx_args) => {
-                dlx::handler(package_manager, dlx_args);
-            }
-            Commands::SetCache(set_cache_args) => {
-                set_cache::handler(package_manager, set_cache_args)
-            }
-        }
+        let shell = match cli.commands {
+            Commands::Add(args) => args.get_runnable_cmd(package_manager),
+            Commands::CleanInstall(args) => args.get_runnable_cmd(package_manager),
+            Commands::Install(args) => args.get_runnable_cmd(package_manager),
+            Commands::UnInstall(args) => args.get_runnable_cmd(package_manager),
+            Commands::Run(args) => args.get_runnable_cmd(package_manager),
+            Commands::Upgrade(args) => args.get_runnable_cmd(package_manager),
+            Commands::Dlx(args) => args.get_runnable_cmd(package_manager),
+            Commands::SetCache(args) => args.get_runnable_cmd(package_manager),
+        };
+        run_shell(shell)
     }
 }

@@ -1,5 +1,6 @@
-use crate::utils::run_shell;
 use clap::Args;
+
+use super::command_handler::CommandHandler;
 
 #[derive(Args)]
 pub struct UpgradeArgs {
@@ -8,9 +9,8 @@ pub struct UpgradeArgs {
     pub package: String,
 }
 
-pub fn handler(package_manager: &String, upgrade_args: UpgradeArgs) {
-    run_shell(format!(
-        "{} upgrade {}",
-        package_manager, upgrade_args.package
-    ))
+impl CommandHandler for UpgradeArgs {
+    fn get_runnable_cmd(&self, package_manager: &String) -> String {
+        format!("{} upgrade {}", package_manager, self.package)
+    }
 }

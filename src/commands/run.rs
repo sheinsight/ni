@@ -1,5 +1,6 @@
-use crate::utils::run_shell;
 use clap::Args;
+
+use super::command_handler::CommandHandler;
 
 #[derive(Args)]
 pub struct RunArgs {
@@ -10,15 +11,12 @@ pub struct RunArgs {
     pub pass_on: Vec<String>,
 }
 
-pub fn handler(package_manager: &String, run_args: RunArgs) {
-    let RunArgs { script, pass_on } = run_args;
-    match package_manager.as_str() {
-        "npm" => run_shell(format!("npm run {} -- {}", script, pass_on.join(" "))),
-        _ => run_shell(format!(
-            "{} run {} {}",
-            package_manager,
-            script,
-            pass_on.join(" ")
-        )),
+impl CommandHandler for RunArgs {
+    fn get_runnable_cmd(&self, package_manager: &String) -> String {
+        let RunArgs { script, pass_on } = self;
+        match package_manager.as_str() {
+            "npm" => format!("npm run {} -- {}", script, pass_on.join(" ")),
+            _ => format!("{} run {} {}", package_manager, script, pass_on.join(" ")),
+        }
     }
 }
