@@ -1,4 +1,5 @@
 mod commands;
+mod h;
 mod utils;
 use crate::commands::command_handler::CommandHandler;
 use crate::commands::{add, clean_install, dlx, install, run, set_cache, un_install, upgrade};
