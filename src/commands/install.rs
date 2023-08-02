@@ -6,7 +6,16 @@ use super::command_handler::CommandHandler;
 pub struct InstallArgs {}
 
 impl CommandHandler for InstallArgs {
-    fn get_runnable_cmd(&self, package_manager: &String) -> String {
-        format!("{} install", package_manager)
+    fn get_runnable_cmd(
+        &self,
+        package_manager: &str,
+    ) -> Result<String, Box<dyn std::error::Error>> {
+        let cmd = match package_manager {
+            "npm" => format!("npm install"),
+            "yarn" => format!("yarn install"),
+            "pnpm" => format!("pnpm install"),
+            _ => return Err("package_manager is invalid".into()),
+        };
+        Ok(cmd)
     }
 }

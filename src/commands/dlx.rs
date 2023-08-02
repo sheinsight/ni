@@ -13,11 +13,18 @@ pub struct DlxArgs {
 }
 
 impl CommandHandler for DlxArgs {
-    fn get_runnable_cmd(&self, package_manager: &String) -> String {
+    fn get_runnable_cmd(
+        &self,
+        package_manager: &str,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let DlxArgs { package, pass_on } = self;
-        match package_manager.as_str() {
-            "npm" => format!("npx {} {}", package, pass_on.join(" ")),
-            _ => format!("{} dlx {} {}", package_manager, package, pass_on.join(" ")),
-        }
+        let pass_on_str = pass_on.join(" ");
+        let cmd = match package_manager {
+            "npm" => format!("npx {} {}", package, pass_on_str),
+            "yarn" => format!("yarn dlx {} {}", package, pass_on_str),
+            "pnpm" => format!("pnpm dlx {} {}", package, pass_on_str),
+            _ => return Err("package_manager is invalid".into()),
+        };
+        Ok(cmd)
     }
 }

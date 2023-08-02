@@ -26,7 +26,10 @@ pub struct AddArgs {
 }
 
 impl CommandHandler for AddArgs {
-    fn get_runnable_cmd(&self, package_manager: &String) -> String {
+    fn get_runnable_cmd(
+        &self,
+        package_manager: &str,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let AddArgs {
             package,
             save,
@@ -34,20 +37,43 @@ impl CommandHandler for AddArgs {
             save_optional,
             global,
         } = self;
-
+        let cmd;
         if *save {
-            format!("{} add --save {}", package_manager, package)
+            cmd = match package_manager {
+                "npm" => format!("npm add --save {}", package),
+                "yarn" => format!("yarn add --save {}", package),
+                "pnpm" => format!("pnpm add --save {}", package),
+                _ => return Err("package_manager is invalid".into()),
+            };
         } else if *save_dev {
-            format!("{} add --save-dev {}", package_manager, package)
+            cmd = match package_manager {
+                "npm" => format!("npm add --save-dev {}", package),
+                "yarn" => format!("yarn add --save-dev {}", package),
+                "pnpm" => format!("pnpm add --save-dev {}", package),
+                _ => return Err("package_manager is invalid".into()),
+            };
         } else if *save_optional {
-            format!("{} add --save-optional {}", package_manager, package)
+            cmd = match package_manager {
+                "npm" => format!("npm add --save-optional {}", package),
+                "yarn" => format!("yarn add --save-optional {}", package),
+                "pnpm" => format!("pnpm add --save-optional {}", package),
+                _ => return Err("package_manager is invalid".into()),
+            };
         } else if *global {
-            match package.as_str() {
+            cmd = match package_manager {
+                "npm" => format!("npm add --global {}", package),
                 "yarn" => format!("yarn global add {}", package),
-                _ => format!("{} add --global {}", package_manager, package),
-            }
+                "pnpm" => format!("pnpm add --global {}", package),
+                _ => return Err("package_manager is invalid".into()),
+            };
         } else {
-            format!("{} add {}", package_manager, package)
+            cmd = match package_manager {
+                "npm" => format!("npm add  {}", package),
+                "yarn" => format!("yarn add   {}", package),
+                "pnpm" => format!("pnpm add  {}", package),
+                _ => return Err("package_manager is invalid".into()),
+            };
         }
+        Ok(cmd)
     }
 }

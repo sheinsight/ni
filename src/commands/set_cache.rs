@@ -9,13 +9,17 @@ pub struct SetCacheArgs {
 }
 
 impl CommandHandler for SetCacheArgs {
-    fn get_runnable_cmd(&self, package_manager: &String) -> String {
+    fn get_runnable_cmd(
+        &self,
+        package_manager: &str,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let SetCacheArgs { path } = self;
-        match package_manager.as_str() {
+        let cmd = match package_manager {
             "npm" => format!("npm config set cache {}", path),
             "yarn" => format!("yarn config set cache-folder {}", path),
             "pnpm" => format!("pnpm config set store-dir {}", path),
-            _ => format!("npm config set cache {}", path),
-        }
+            _ => return Err("package_manager is invalid".into()),
+        };
+        Ok(cmd)
     }
 }

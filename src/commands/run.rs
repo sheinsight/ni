@@ -12,11 +12,18 @@ pub struct RunArgs {
 }
 
 impl CommandHandler for RunArgs {
-    fn get_runnable_cmd(&self, package_manager: &String) -> String {
+    fn get_runnable_cmd(
+        &self,
+        package_manager: &str,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let RunArgs { script, pass_on } = self;
-        match package_manager.as_str() {
-            "npm" => format!("npm run {} -- {}", script, pass_on.join(" ")),
-            _ => format!("{} run {} {}", package_manager, script, pass_on.join(" ")),
-        }
+        let pass_on_str = pass_on.join(" ");
+        let cmd = match package_manager {
+            "npm" => format!("npm run {} -- {}", script, pass_on_str),
+            "yarn" => format!("yarn run {} {}", script, pass_on_str),
+            "pnpm" => format!("pnpm run {} {}", script, pass_on_str),
+            _ => return Err("package_manager is invalid".into()),
+        };
+        Ok(cmd)
     }
 }

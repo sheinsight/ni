@@ -14,20 +14,27 @@ pub struct UnInstallArgs {
 }
 
 impl CommandHandler for UnInstallArgs {
-    fn get_runnable_cmd(&self, package_manager: &String) -> String {
+    fn get_runnable_cmd(
+        &self,
+        package_manager: &str,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let UnInstallArgs { package, global } = self;
+        let cmd;
         if *global {
-            match package_manager.as_str() {
+            cmd = match package_manager {
                 "npm" => format!("npm uninstall -g {}", package),
                 "yarn" => format!("yarn global remove {}", package),
                 "pnpm" => format!("pnpm remove -g {}", package),
-                _ => format!("npm uninstall -g {}", package),
+                _ => return Err("package_manager is invalid".into()),
             }
         } else {
-            match package_manager.as_str() {
+            cmd = match package_manager {
                 "npm" => format!("npm uninstall {}", package),
-                _ => format!("{} remove {}", package_manager, package),
+                "yarn" => format!("yarn remove {}", package),
+                "pnpm" => format!("pnpm remove {}", package),
+                _ => return Err("package_manager is invalid".into()),
             }
         }
+        Ok(cmd)
     }
 }

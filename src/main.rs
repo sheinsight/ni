@@ -65,6 +65,8 @@ fn main() {
             Commands::Dlx(args) => args.get_runnable_cmd(package_manager),
             Commands::SetCache(args) => args.get_runnable_cmd(package_manager),
         };
-        run_shell(shell)
+        if let Ok(cmd) = shell {
+            run_shell(cmd)
+        }
     }
 }

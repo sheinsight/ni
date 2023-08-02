@@ -1,4 +1,5 @@
 use clap::Args;
+use std::error::Error;
 
 use super::command_handler::CommandHandler;
 
@@ -10,7 +11,13 @@ pub struct UpgradeArgs {
 }
 
 impl CommandHandler for UpgradeArgs {
-    fn get_runnable_cmd(&self, package_manager: &String) -> String {
-        format!("{} upgrade {}", package_manager, self.package)
+    fn get_runnable_cmd(&self, package_manager: &str) -> Result<String, Box<dyn Error>> {
+        let cmd = match package_manager {
+            "pnpm" => format!("pnpm upgrade {}", self.package),
+            "yarn" => format!("yarn upgrade {}", self.package),
+            "npm" => format!("npm upgrade {}", self.package),
+            _ => return Err("package_manager is invalid".into()),
+        };
+        Ok(cmd)
     }
 }
