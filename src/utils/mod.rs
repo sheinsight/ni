@@ -1,11 +1,11 @@
 #[macro_use]
 pub mod macros;
-
 use regex::Regex;
 use serde_json::Value;
+use std::error::Error;
 use std::fs;
 use std::path::Path;
-use subprocess::Exec;
+use subprocess::{Exec, Redirection};
 extern crate colored;
 use colored::*;
 
@@ -31,18 +31,13 @@ pub fn read_package_manager() -> Vec<String> {
     error!("Could not found package.json");
 }
 
-pub fn run_shell(cmd: String) {
+pub fn run_shell(cmd: String) -> Result<(), Box<dyn Error>> {
     info!("The instruction to be executed is : '{}' ", cmd);
-    let popen = Exec::cmd("sh")
-        .arg("-c")
-        .arg(cmd)
-        // .stderr(Redirection::None)
-        // .stdout(Redirection::None)
-        .popen();
-    match popen {
-        Ok(_) => (),
-        Err(err) => {
-            error!("Failed to execute the command: '{}'.", err);
+    if let Ok(status) = Exec::cmd("sh").arg("-c").arg(cmd).popen()?.wait() {
+        if !status.success() {
+            error!("{} ", "error:".red());
         }
     }
+
+    Ok(())
 }

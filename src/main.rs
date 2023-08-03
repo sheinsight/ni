@@ -66,7 +66,7 @@ fn main() {
             Commands::SetCache(args) => args.get_runnable_cmd(package_manager),
         };
         if let Ok(cmd) = shell {
-            run_shell(cmd)
+            run_shell(cmd).unwrap()
         }
     }
 }

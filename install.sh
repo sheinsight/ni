@@ -11,7 +11,7 @@ echo $ARCH
 BINARY_URL=""
 BINARY_FILE="n"
 
-V="v0.0.9"
+V="v0.0.10"
 
 if [ "$OS" = "Darwin" ]; then
   if [ "$ARCH" = "x86_64" ]; then
