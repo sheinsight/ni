@@ -1,3 +1,4 @@
 {
-  "cSpell.words": ["maplit", "popen", "serde"]
+  "cSpell.words": ["maplit", "popen", "serde"],
+  "rust-analyzer.linkedProjects": ["./Cargo.toml"]
 }
