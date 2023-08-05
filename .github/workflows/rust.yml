@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install
-        run: cargo install
+        run: cargo install --path .
       - name: Build
         run: chmod +x ./scripts/build.sh && ./scripts/build.sh
       - name: Run tests
