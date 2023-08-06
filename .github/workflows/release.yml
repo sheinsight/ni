@@ -85,5 +85,5 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ${{ matrix.archive-name }}.zip
+            ${{ matrix.archive-name }}
             LICENSE
