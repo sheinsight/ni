@@ -24,11 +24,16 @@ jobs:
             rust: nightly
             target: x86_64-unknown-linux-musl
             archive-name: n-linux.tar.gz
-          - build: macos
+          - build: macos-x86_64
             os: macos-latest
             rust: nightly
             target: x86_64-apple-darwin
-            archive-name: n-macos.tar.gz
+            archive-name: n-macos-x86.tar.gz
+          - build: macos-arm
+            os: macos-latest
+            rust: nightly
+            target: aarch64-apple-darwin
+            archive-name: n-macos-aarch64.tar.gz
           - build: windows
             os: windows-2019
             rust: nightly-x86_64-msvc
@@ -86,3 +91,21 @@ jobs:
           prerelease: false
           files: |
             archive/${{ matrix.archive-name }}
+  release:
+    name: release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: download artifact
+        uses: actions/download-artifact@v2
+        with:
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.16"
+
+      - name: Set up git
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${
