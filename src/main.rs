@@ -1,7 +1,7 @@
 mod commands;
 mod utils;
 use crate::commands::command_handler::CommandHandler;
-use crate::commands::{add, clean_install, dlx, install, run, set_cache, un_install, upgrade};
+use crate::commands::{add, clean_install, dlx, install, run, set_cache, un_install, upgrade, r#use};
 use crate::utils::{read_package_manager, run_shell};
 use clap::{command, Parser, Subcommand};
 
@@ -42,6 +42,9 @@ enum Commands {
     Dlx(dlx::DlxArgs),
     #[command(name = "set-cache", arg_required_else_help = true)]
     SetCache(set_cache::SetCacheArgs),
+
+    #[command(name = "use")]
+    UseVersion(r#use::UseArgs),
 }
 
 fn main() {
@@ -64,8 +67,14 @@ fn main() {
             Commands::Upgrade(args) => args.get_runnable_cmd(package_manager),
             Commands::Dlx(args) => args.get_runnable_cmd(package_manager),
             Commands::SetCache(args) => args.get_runnable_cmd(package_manager),
+            Commands::UseVersion(args) => args.get_runnable_cmd(package_manager),
         };
         if let Ok(cmd) = shell {
+            // TODO: try optimizing get_runnable_cmd result interface
+            if cmd.len() == 0 {
+                return
+            }
+
             run_shell(cmd).unwrap()
         }
     }
