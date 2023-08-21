@@ -11,6 +11,12 @@ on:
     tags:
       - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
 
+env: # 全局环境变量
+  linux_x86_archive_name: "n-linux-x86.tar.gz"
+  macos-x86-archive-name: "n-macos-x86.tar.gz"
+  macos-arm-archive-name: "n-macos-arm.tar.gz"
+  windows-archive-name: "n-windows.7z"
+
 jobs:
   build:
     name: build
@@ -23,7 +29,7 @@ jobs:
             os: ubuntu-latest
             rust: nightly
             target: x86_64-unknown-linux-musl
-            archive-name: n-linux.tar.gz
+            archive-name: n-linux-x86.tar.gz
           - build: macos-x86_64
             os: macos-latest
             rust: nightly
@@ -33,7 +39,7 @@ jobs:
             os: macos-latest
             rust: nightly
             target: aarch64-apple-darwin
-            archive-name: n-macos-aarch64.tar.gz
+            archive-name: n-macos-arm.tar.gz
           - build: windows
             os: windows-2019
             rust: nightly-x86_64-msvc
@@ -80,6 +86,43 @@ jobs:
         with:
           name: ${{ matrix.archive-name }}
           path: archive/${{ matrix.archive-name }}
+      # - name: Create Release And Upload Release Asset
+      #   uses: softprops/action-gh-release@v1
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   with:
+      #     tag_name: ${{ github.ref }}
+      #     name: Release ${{ github.ref }}
+      #     body: TODO New Release.
+      #     draft: false
+      #     prerelease: false
+      #     files: |
+      #       archive/${{ matrix.archive-name }}
+  release:
+    name: release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download linux-x86 archive
+        uses: actions/download-artifact@v2
+        with:
+          name: n-linux-x86.tar.gz
+          path: archive
+      - name: Download macos-x86 archive
+        uses: actions/download-artifact@v2
+        with:
+          name: n-macos-x86.tar.gz
+          path: archive
+      - name: Download macos-arm archive
+        uses: actions/download-artifact@v2
+        with:
+          name: n-macos-arm.tar.gz
+          path: archive
+      - name: Download windows archive
+        uses: actions/download-artifact@v2
+        with:
+          name: n-windows.7z
+          path: archive
+
       - name: Create Release And Upload Release Asset
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
@@ -90,4 +133,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            archive/${{ matrix.archive-name }}
+            archive/n-linux-x86.tar.gz
+            archive/n-macos-x86.tar.gz
+            archive/n-macos-arm.tar.gz
+            archive/n-windows.7z
