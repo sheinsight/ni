@@ -2,7 +2,6 @@ use clap::Args;
 use std::error::Error;
 use fnm::commands::command::Command;
 use super::command_handler::CommandHandler;
-use crate::utils;
 
 #[derive(Args)]
 pub struct UseArgs {

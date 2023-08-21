@@ -1,7 +1,7 @@
 mod commands;
 mod utils;
 use crate::commands::command_handler::CommandHandler;
-use crate::commands::{add, clean_install, dlx, install, run, set_cache, un_install, upgrade, r#use};
+use crate::commands::{add, clean_install, dlx, install, run, set_cache, un_install, upgrade, r#use, node_env};
 use crate::utils::{read_package_manager, run_shell};
 use clap::{command, Parser, Subcommand};
 
@@ -37,14 +37,20 @@ enum Commands {
     /// Like npm update
     #[command(name = "upgrade", visible_aliases = ["up"], arg_required_else_help = true)]
     Upgrade(upgrade::UpgradeArgs),
+
     /// Like npx
     #[command(name = "dlx", visible_aliases = ["x"],arg_required_else_help = true)]
     Dlx(dlx::DlxArgs),
+    
     #[command(name = "set-cache", arg_required_else_help = true)]
     SetCache(set_cache::SetCacheArgs),
 
     #[command(name = "use")]
     UseVersion(r#use::UseArgs),
+
+    /// For getting shell env setting command
+    #[command(name = "env", visible_aliases = ["nv"])]
+    NodeEnv(node_env::NodeEnvArgs),
 }
 
 fn main() {
@@ -68,7 +74,9 @@ fn main() {
             Commands::Dlx(args) => args.get_runnable_cmd(package_manager),
             Commands::SetCache(args) => args.get_runnable_cmd(package_manager),
             Commands::UseVersion(args) => args.get_runnable_cmd(package_manager),
+            Commands::NodeEnv(args) => args.get_runnable_cmd(package_manager),
         };
+
         if let Ok(cmd) = shell {
             // TODO: try optimizing get_runnable_cmd result interface
             if cmd.len() == 0 {
