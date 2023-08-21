@@ -4,6 +4,7 @@ use crate::commands::command_handler::CommandHandler;
 use crate::commands::{add, clean_install, dlx, install, run, set_cache, un_install, upgrade, r#use, node_env};
 use crate::utils::{read_package_manager, run_shell};
 use clap::{command, Parser, Subcommand};
+use colored::Colorize;
 
 #[derive(Parser)]
 #[command(name= "n",author = "ityuany", version, about, long_about = None,disable_help_subcommand=true )]
@@ -77,13 +78,18 @@ fn main() {
             Commands::NodeEnv(args) => args.get_runnable_cmd(package_manager),
         };
 
-        if let Ok(cmd) = shell {
-            // TODO: try optimizing get_runnable_cmd result interface
-            if cmd.len() == 0 {
-                return
+        match shell {
+            Ok(cmd) => {
+                if cmd.len() == 0 {
+                    return
+                }
+                run_shell(cmd).unwrap()
+            },
+            Err(err) => {
+                // TODO: try use macro here
+                let message = format!("👻 {}", err);
+                print!("{}\n", message.red());
             }
-
-            run_shell(cmd).unwrap()
         }
     }
 }
