@@ -11,11 +11,11 @@ on:
     tags:
       - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
 
-env: # 全局环境变量
-  linux_x86_archive_name: "n-linux-x86.tar.gz"
-  macos-x86-archive-name: "n-macos-x86.tar.gz"
-  macos-arm-archive-name: "n-macos-arm.tar.gz"
-  windows-archive-name: "n-windows.7z"
+# env: # 全局环境变量
+#   linux_x86_archive_name: "n-linux-x86.tar.gz"
+#   macos-x86-archive-name: "n-macos-x86.tar.gz"
+#   macos-arm-archive-name: "n-macos-arm.tar.gz"
+#   windows-archive-name: "n-windows.7z"
 
 jobs:
   build:
@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build: [linux, macos, windows]
+        build: [linux, macos-x86_64, macos-arm, windows]
         include:
           - build: linux
             os: ubuntu-latest
