@@ -1,9 +1,10 @@
 mod commands;
 mod utils;
 use crate::commands::command_handler::CommandHandler;
-use crate::commands::{add, clean_install, dlx, install, run, set_cache, un_install, upgrade};
+use crate::commands::{add, clean_install, dlx, install, run, set_cache, un_install, upgrade, fnm};
 use crate::utils::{read_package_manager, run_shell};
 use clap::{command, Parser, Subcommand};
+use colored::Colorize;
 
 #[derive(Parser)]
 #[command(name= "n",author = "ityuany", version, about, long_about = None,disable_help_subcommand=true )]
@@ -37,11 +38,16 @@ enum Commands {
     /// Like npm update
     #[command(name = "upgrade", visible_aliases = ["up"], arg_required_else_help = true)]
     Upgrade(upgrade::UpgradeArgs),
+
     /// Like npx
     #[command(name = "dlx", visible_aliases = ["x"],arg_required_else_help = true)]
     Dlx(dlx::DlxArgs),
+    
     #[command(name = "set-cache", arg_required_else_help = true)]
     SetCache(set_cache::SetCacheArgs),
+
+    #[command(name = "node")]
+    NodeSeries(fnm::NodeArgs),
 }
 
 fn main() {
@@ -64,9 +70,21 @@ fn main() {
             Commands::Upgrade(args) => args.get_runnable_cmd(package_manager),
             Commands::Dlx(args) => args.get_runnable_cmd(package_manager),
             Commands::SetCache(args) => args.get_runnable_cmd(package_manager),
+            Commands::NodeSeries(args) => args.get_runnable_cmd(package_manager),
         };
-        if let Ok(cmd) = shell {
-            run_shell(cmd).unwrap()
+
+        match shell {
+            Ok(cmd) => {
+                if cmd.len() == 0 {
+                    return
+                }
+                run_shell(cmd).unwrap()
+            },
+            Err(err) => {
+                // TODO: try use macro here
+                let message = format!("👻 {}", err);
+                print!("{}\n", message.red());
+            }
         }
     }
 }
