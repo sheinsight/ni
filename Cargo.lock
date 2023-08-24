@@ -764,7 +764,7 @@ dependencies = [
 [[package]]
 name = "fnm"
 version = "1.35.1"
-source = "git+https://github.com/cycade/fnm?branch=refactor/use-lib-rs#68406f0deb821426fc65822e8d0de8104a688f2f"
+source = "git+https://github.com/cycade/fnm?branch=refactor/use-lib-rs#555f706287d3a07c479c57f8357f52ba36b37383"
 dependencies = [
  "anyhow",
  "chrono",

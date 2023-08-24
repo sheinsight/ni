@@ -7,5 +7,4 @@ pub mod run;
 pub mod set_cache;
 pub mod un_install;
 pub mod upgrade;
-pub mod r#use;
-pub mod node_env;
+pub mod fnm;
